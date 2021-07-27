@@ -1,5 +1,6 @@
 #!/bin/bash
 
+name=""
 unlocal_screen(){
 	adb shell input keyevent  26	#press power key 
 	sleep 1
@@ -24,12 +25,19 @@ download_file(){
 }
 
 get_sn(){
-	id1=$(python barcode.py)
-	echo "----------$id1"
-	id2=$(python barcode.py)
-	echo "----------$id2"
-#	name=$id1_$id2
+	for ((i = 0; i < 10; i++ )); do
+		id1=$(python barcode.py)
+		id2=$(python barcode.py)
+		if [ ${#id1} -eq 15 ];then
+			name=$id2-$id1
+		else
+			name=$id1-$id2
+		fi
+	done
 	echo $name
+}
+upload_picture(){
+	mv test.jpg $name.jpg
 }
 
 #unlocal_screen
