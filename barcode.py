@@ -7,6 +7,9 @@ import time
 import binascii
 import evdev
 
+ledNo=sys.argv[1]
+#print(ledNo)
+
 def readID_kbd():
     ID = ''
     path = os.popen("ls /dev/input/by-path/ | grep kbd").read().split('\n', 1)[0]
@@ -33,18 +36,20 @@ def readID_kbd():
                     if key_lookup != 'LSHFT' and key_lookup != 'NULL':
                         ID = ID + key_lookup
                 else:
-                    return ID.encode("utf-8")
+                    return ID
+#                    return ID.encode("utf-8")
 def readID():
     out = os.popen("ls /dev/input/by-path/ | grep kbd").read()
     if "kbd" in out:
         print("kbd barcoder detect", file=sys.stderr)
         id = readID_kbd()
+        return id
     else:
-        print("not a kbd barcoder", file=sys.stderr)
-        id = readID_serial()
-    return id
+        print("there is no barcoder")
 
 if __name__ == '__main__':
-    os.system("leds 1 on")
+    cmd1="leds " + str(ledNo) + " on"
+    cmd2="leds " + str(ledNo) + " off"
+    os.system(cmd1)
     print(readID())
-    os.system("leds 1 off")
+    os.system(cmd2)

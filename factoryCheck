@@ -1,0 +1,3 @@
+#!/bin/bash
+cd /home/debian/Seeed_x86_getKey
+./get_data

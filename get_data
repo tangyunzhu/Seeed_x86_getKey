@@ -1,21 +1,32 @@
 #!/bin/bash
 
 name=""
-unlocal_screen(){
+
+unlock_screen(){
 	adb shell input keyevent  26	#press power key 
 	sleep 1
-	adb shell input keyevent  82	#unlock screen
+	adb shell input keyevent  82    #unlock screen
 	sleep 1
 }
+
+
+screen_check(){
+        echo $(adb shell dumpsys power | grep 'mHolding') | grep "mHoldingDisplaySuspendBlocker=true"
+        r=$?
+        if [ $r -ne 0 ];then
+                unlock_screen
+        fi
+}
+
 
 
 take_photo(){
 	adb shell rm -rf /sdcard/DCIM/Camera/*.jpg			#delete the all photo
 	sleep 0.5
 	adb shell am start -a android.media.action.STILL_IMAGE_CAMERA 	#start camera
-	sleep 0.5
+	sleep 2
 	adb shell input keyevent  27	#take photo
-	sleep 0.5
+	sleep 2
 }
 
 download_file(){
@@ -25,22 +36,44 @@ download_file(){
 }
 
 get_sn(){
+	now=`TZ='Asia/Shanghai' date +"%Y%m%d-%H%M%S"`
 	for ((i = 0; i < 10; i++ )); do
-		id1=$(python barcode.py)
-		id2=$(python barcode.py)
+		id1=$(python3 barcode.py 0)
+		id2=$(python3 barcode.py 1)
 		if [ ${#id1} -eq 15 ];then
-			name=$id2-$id1
+			name=$id2-$id1-T${now}
 		else
-			name=$id1-$id2
+			name=$id1-$id2-T${now}
+		fi
+		
+		if [ ${#name} -ge 26 ]; then
+			echo $name
+			break
 		fi
 	done
-	echo $name
 }
 upload_picture(){
 	mv test.jpg $name.jpg
+	python3 alicloud_upload.py $name.jpg $name.jpg
+	r=$?
+	return $r
 }
-
-#unlocal_screen
-#take_photo
-#download_photo
-get_sn
+config-pin p9_22 gpio
+screen_check
+leds all on
+while [ 1 ]
+do
+    status=$(gpio input 2)
+    if [ $status -eq 1 ]; then
+	leds all off
+        take_photo
+        download_file
+        get_sn
+        upload_picture
+        r=$?
+        rm -rf *.jpg
+        if [ $r -eq 0 ]; then
+            leds all on
+        fi
+    fi
+done
