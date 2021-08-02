@@ -1,3 +1,13 @@
 #!/bin/bash
+while [ 1 ]
+do
+        if [ -d "/dev/input/by-id" ]; then
+                break
+        fi
+        leds 3 on
+        sleep 0.5
+        leds 3 off
+        sleep 0.5
+done
 cd /home/debian/Seeed_x86_getKey
 ./get_data

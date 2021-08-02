@@ -40,16 +40,15 @@ get_sn(){
 	for ((i = 0; i < 10; i++ )); do
 		id1=$(python3 barcode.py 0)
 		id2=$(python3 barcode.py 1)
-		if [ ${#id1} -eq 15 ];then
-			name=$id2-$id1-T${now}
-		else
-			name=$id1-$id2-T${now}
-		fi
-		
-		if [ ${#name} -ge 26 ]; then
-			echo $name
-			break
-		fi
+                [[ $id1 == J* ]] && [[ $id2 == M* ]] && name=$id2-$id1-T${now} && break
+                [[ $id1 == A* ]] && [[ $id2 == M* ]] && name=$id2-$id1-T${now} && break
+                [[ $id1 == J* ]] && [[ $id2 == N* ]] && name=$id2-$id1-T${now} && break
+                [[ $id1 == A* ]] && [[ $id2 == N* ]] && name=$id2-$id1-T${now} && break
+                [[ $id1 == M* ]] && [[ $id2 == J* ]] && name=$id1-$id2-T${now} && break
+                [[ $id1 == M* ]] && [[ $id2 == A* ]] && name=$id1-$id2-T${now} && break
+                [[ $id1 == N* ]] && [[ $id2 == J* ]] && name=$id1-$id2-T${now} && break
+                [[ $id1 == N* ]] && [[ $id2 == A* ]] && name=$id1-$id2-T${now} && break
+
 	done
 }
 upload_picture(){
